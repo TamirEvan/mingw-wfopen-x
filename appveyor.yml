@@ -1,0 +1,74 @@
+image: Visual Studio 2019
+
+environment:
+  matrix:
+  - TARGET: mingw-native
+  - TARGET: cygwin-mingw-w64-cross
+  - TARGET: msys2-mingw-w64-native
+  - TARGET: msys2-mingw-w64-cross
+
+after_build:
+  - cmd: echo Running demo:&
+      C:\projects\mingw-wfopen-x\demo.exe
+
+for:
+-
+    matrix:
+        only:
+            - TARGET: mingw-native
+    install:
+    - cmd: C:\MinGW\bin\mingw-get update &&
+        C:\MinGW\bin\mingw-get upgrade --recursive msys-base mingw32-base
+    build_script:
+    - cmd: C:\MinGW\msys\1.0\bin\bash -e -l -c "cd /c/projects/mingw-wfopen-x &&
+        gcc -o demo demo.c"
+
+-
+    matrix:
+        only:
+            - TARGET: cygwin-mingw-w64-cross
+    install:
+    - cmd: curl -fsS https://cygwin.com/setup-x86.exe > C:\cygwin\setup-x86.exe &&
+        C:\cygwin\setup-x86.exe -qnNd -l C:\cygwin\var\cache\setup -R c:\cygwin
+            -P mingw64-i686-gcc-core
+            -P mingw64-i686-binutils
+            -P mingw64-i686-headers
+            -P mingw64-i686-runtime
+    build_script:
+    - cmd: C:\cygwin\bin\bash -e -l -c "cd /cygdrive/c/projects/mingw-wfopen-x &&
+            i686-w64-mingw32-gcc -o demo demo.c"
+
+-
+    matrix:
+        only:
+            - TARGET: msys2-mingw-w64-native
+    install:
+    - cmd: C:\msys64\usr\bin\bash -e -l -c "pacman --noconfirm --needed -S
+            bash
+            pacman
+            pacman-mirrors
+            msys2-runtime" &&
+        C:\msys64\usr\bin\bash -e -l -c "pacman --noconfirm --needed -S
+            mingw-w64-i686-toolchain"
+    build_script:
+    - cmd: C:\msys64\usr\bin\bash -e -l -c "PATH=/mingw32/bin:$PATH &&
+            cd /c/projects/mingw-wfopen-x &&
+            gcc -o demo demo.c"
+
+-
+    matrix:
+        only:
+            - TARGET: msys2-mingw-w64-cross
+    install:
+    - cmd: C:\msys64\usr\bin\bash -e -l -c "pacman --noconfirm --needed -S
+            bash
+            pacman
+            pacman-mirrors
+            msys2-runtime" &&
+        C:\msys64\usr\bin\bash -e -l -c "pacman --noconfirm --needed -S
+            mingw-w64-cross-toolchain"
+    build_script:
+    - cmd: C:\msys64\usr\bin\bash -e -l -c "PATH=/mingw32/bin:$PATH &&
+            cd /c/projects/mingw-wfopen-x &&
+            i686-w64-mingw32-gcc -o demo demo.c"
+
