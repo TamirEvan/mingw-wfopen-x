@@ -2,6 +2,10 @@ image: Visual Studio 2019
 
 environment:
   matrix:
+  - TARGET: VS2019
+    platform: x86
+    configuration: Release
+
   - TARGET: mingw-native
   - TARGET: cygwin-mingw-w64-cross
   - TARGET: msys2-mingw-w64-native
@@ -12,6 +16,13 @@ after_build:
       C:\projects\mingw-wfopen-x\demo.exe
 
 for:
+- 
+    matrix:
+        only: 
+            - TARGET: VS2019
+    build:          
+        project: VS2019\mingw-wfopen-x.sln
+
 -
     matrix:
         only:
